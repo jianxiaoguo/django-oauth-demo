@@ -2,6 +2,7 @@ import base64
 import hashlib
 import urllib
 import uuid
+import json
 
 import requests
 from authlib.integrations.django_client import OAuth
@@ -24,7 +25,7 @@ gp_client =GatepassOAuthClient(
 gp_client.configure(
     authorize_url=OAUTH_AUTHORIZE_URL,
     access_token_url=OAUTH_ACCESS_TOKEN_URL,
-    refresh_url=OAUTH_REFRESH_TOKEN_URL,
+    refresh_token_url=OAUTH_REFRESH_TOKEN_URL,
     code_challenge=True,
     code_challenge_method='S256'
 )
@@ -64,7 +65,30 @@ class RedirectUrlView(TemplateView):
         code_challenge=self.request.session.get('code_challenge')
 
         redirect_url = self.request.build_absolute_uri('/bagaicha/private/')
-        response = gp_client.make_access_token_request(code=code, state=state, redirect_uri=redirect_url, code_challenge=code_challenge)
+        _response = gp_client.make_access_token_request(code=code, state=state, redirect_uri=redirect_url, code_challenge=code_challenge)
 
+        response = json.loads(_response.text)
+        kw['response'] = response
+
+        kw['refresh_token'] = response.get('refresh_token')
+        return kw
+
+class RefreshTokenView(TemplateView):
+    template_name='refresh.html'
+
+    def get_context_data(self, **kwargs):
+        kw = super().get_context_data(**kwargs)
+        kw['get_args'] = self.request.GET
+    
+        # make access_Token_request
+        # client=oauth_client()
+
+        refresh_token=self.request.GET.get('token')
+
+        redirect_url = self.request.build_absolute_uri('/bagaicha/private/')
+        _response = gp_client.make_refresh_token_request(refresh_token)
+
+        response = json.loads(_response.text)
+        
         kw['response'] = response
         return kw

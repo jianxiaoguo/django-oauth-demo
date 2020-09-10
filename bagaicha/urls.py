@@ -12,12 +12,13 @@ from django.contrib.auth.decorators import login_required
 from django.urls import include, path
 from django.views.generic.base import TemplateView
 
-from .views import LoginWithView, RedirectUrlView
+from .views import LoginWithView, RedirectUrlView, RefreshTokenView
 
 urlpatterns = [
     path('', login_required(TemplateView.as_view(template_name='bagaicha.html'))),
     path('demo/', LoginWithView.as_view(), name='demo'),
-    path('private/', RedirectUrlView.as_view(), name='private')
+    path('private/', RedirectUrlView.as_view(), name='private'),
+    path('refresh/', RefreshTokenView.as_view(), name='refresh'),
 ]
 
 

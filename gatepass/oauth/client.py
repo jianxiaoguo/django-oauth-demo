@@ -9,7 +9,7 @@ import requests
 OAUTH_CLIENT_ID='2H7EwXHRy5YESvL8AkBVJtzGQVOgo3geu3DaWfWf'
 OAUTH_CLIENT_SECRET='vQ8KAITx0HFu3CI496iQdAs8NzhvIdz94aWTkmBYVR77h52qiiLzsZrhH5nVE5BPd67vkYuptDRJk5W83tsjFekXrTCy908zdqCXbgLT7pRxPsT4l2QTX52YMISFbkvR'
 OAUTH_ACCESS_TOKEN_URL='http://dev.khalti.com.np:8004/o/token/'
-OAUTH_REFRESH_TOKEN_URL=''
+OAUTH_REFRESH_TOKEN_URL='http://dev.khalti.com.np:8004/o/token/'
 OAUTH_AUTHORIZE_URL='http://dev.khalti.com.np:8004/o/authorize/'
 
 class GatepassOAuthClient():
@@ -19,7 +19,7 @@ class GatepassOAuthClient():
     access_token_url=None
     authorize_url=None
     access_token_url=None
-    refresh_url=None 
+    refresh_token_url=None 
     code_challenge=False
     code_challenge_method="S256"
 
@@ -29,10 +29,10 @@ class GatepassOAuthClient():
         if name:
             self.name = name
 
-    def configure(self, authorize_url, access_token_url, refresh_url, code_challenge=False, code_challenge_method='S256'):
-        self.access_token_url=access_token_url
+    def configure(self, authorize_url, access_token_url, refresh_token_url, code_challenge=False, code_challenge_method='S256'):
         self.authorize_url=authorize_url
-        self.refresh_url=refresh_url
+        self.access_token_url=access_token_url
+        self.refresh_token_url=refresh_token_url
         self.code_challenge=code_challenge
         self.code_challenge_method=code_challenge_method
 
@@ -101,9 +101,6 @@ class GatepassOAuthClient():
             raise Exception("code_challenge is required for access_token request")
         elif self.code_challenge:
             postdata['code_verifier'] = code_challenge
-
-        print(postdata)
-        print(self._client_auth_headers())
     
         response = requests.post(
             self.access_token_url, data=postdata, headers=self._client_auth_headers()
@@ -111,5 +108,29 @@ class GatepassOAuthClient():
 
         return response
 
-        # import pdb
-        # pdb.set_trace()
+    def make_refresh_token_request(self, refresh_token, scope=None):
+        postdata=dict(
+            grant_type='refresh_token',
+            refresh_token=refresh_token,
+        )
+        if scope:
+            postdata['scope'] = scope
+
+        response = requests.post(
+            self.refresh_token_url, data=postdata, headers=self._client_auth_headers()
+        )
+
+        return response
+
+    def make_revoke_token_request(self, token, token_type_hint=None):
+        postdata=dict(token=token)
+        if token_type_hint is not None and not in ['access_token', 'refresh_token']:
+            raise Exception("Invalid parameter token_type_hint")
+        elif token_type_hint:
+            postdata['token_type_hint'] = token_type_hint
+
+        repsonse = requests.post(
+            self.revoke_token_url, data=postdata, headers=self._client_auth_headers()
+        )
+
+        return repsonse

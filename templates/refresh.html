@@ -1,0 +1,20 @@
+{% extends 'base.html' %} {%block content %}
+<div style="margin:50px auto">
+    <strong>Refresh Token response::</strong>
+    <br /> {{response}}
+
+    <code>
+    <strong>Previous Refresh Token </strong>
+    <br />
+    {{request.GET.token}}
+    <br />
+    <strong>New Issued Refresh Token</strong>
+    <br />
+    {{response.refresh_token}}
+</code>
+
+
+    <a href="{%url 'bagaicha:refresh' %}?token={{response.refresh_token}}">Refresh This Token</a>
+</div>
+
+{% endblock %}
