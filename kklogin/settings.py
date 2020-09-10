@@ -108,7 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kathmandu'
 
 USE_I18N = True
 
@@ -128,20 +128,37 @@ BASE_URL = 'http://dev.khalti.com.np:8004'
 
 # OAuth Specific
 CORS_ORIGIN_ALLOW_ALL = True
-PKCE_REQUIRED=True
 
-ALLOWED_REDIRECT_URI_SCHEMES=["http", "https"]
-ACCESS_TOKEN_EXPIRE_SECONDS=30*86400 # #30 Days
-AUTHORIZATION_CODE_EXPIRE_SECONDS=600 # RFC Recommendation is 10 Secs
-CLIENT_SECRET_GENERATOR_LENGTH=64
-REFRESH_TOKEN_EXPIRE_SECONDS=60*86400 # 60 Days
-ROTATE_REFRESH_TOKEN=True # New Refresh Token is issued everytime the access token is changed
-SCOPES={
+OAUTH2_PROVIDER = {
+    "PKCE_REQUIRED": True,
+    "ALLOWED_REDIRECT_URI_SCHEMES": ["http", "https"],
+    "ACCESS_TOKEN_EXPIRE_SECONDS": 30*86400, # #30 Days
+    "AUTHORIZATION_CODE_EXPIRE_SECONDS": 600, # RFC Recommendation is 10 Secs
+    "CLIENT_SECRET_GENERATOR_LENGTH": 64,
+    "REFRESH_TOKEN_EXPIRE_SECONDS": 60*86400, # 60 Days
+    "ROTATE_REFRESH_TOKEN": True, # New Refresh Token is issued everytime the access token is changed
+    "SCOPES": {
         'profile': 'Khalti Id and Basic Profile Info',
         'balance': 'Available Balance',
         'transactions': 'Fetch Transaction History',
         'payments': 'Allow Payments to be made automatically' ,
+    },
+    "DEFAULT_SCOPES":['profile', ],
+    "DEFAULT_CODE_CHALLENGE_METHOD":'S256',
 }
-DEFAULT_SCOPES=['profile', ]
 
+# ALLOWED_REDIRECT_URI_SCHEMES=["http", "https"]
+# ACCESS_TOKEN_EXPIRE_SECONDS=30*86400 # #30 Days
+# AUTHORIZATION_CODE_EXPIRE_SECONDS=600 # RFC Recommendation is 10 Secs
+# CLIENT_SECRET_GENERATOR_LENGTH=64
+# REFRESH_TOKEN_EXPIRE_SECONDS=60*86400 # 60 Days
+# ROTATE_REFRESH_TOKEN=True # New Refresh Token is issued everytime the access token is changed
+# SCOPES={
+#         'profile': 'Khalti Id and Basic Profile Info',
+#         'balance': 'Available Balance',
+#         'transactions': 'Fetch Transaction History',
+#         'payments': 'Allow Payments to be made automatically' ,
+# }
+# DEFAULT_SCOPES=['profile', ]
 
+# DEFAULT_CODE_CHALLENGE_METHOD='S256'

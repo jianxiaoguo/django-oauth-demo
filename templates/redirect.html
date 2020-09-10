@@ -1,7 +1,6 @@
-{% extends 'base.html' %}
-{%block content %}
+{% extends 'base.html' %} {%block content %}
 <div style="margin:50px auto">
-<pre>
+    <pre>
 <strong>Data Received ::</strong>
 	code={{request.GET.code}}
 	state={{request.GET.state}}
@@ -10,7 +9,9 @@
 url={{access_token_url}}
 token={{access_token}}
 response={{response}}
+{{response.text}}
+{{response.request.url}}
+{{response.request.body}}
 </pre>
 </div>
 {% endblock %}
-
