@@ -14,12 +14,14 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.http import HttpResponse
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
-from django.views.generic.base import RedirectView
+from django.views.generic.base import RedirectView, View
 from django.contrib.auth.decorators import login_required
 
 import oauth2_provider.views as oauth2_views
+from rest_framework.response import Response
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -43,7 +45,7 @@ urlpatterns += [
 # OAuth2 provider endpoints
 oauth2_endpoint_views = [
     path('authorize/', oauth2_views.AuthorizationView.as_view(), name="authorize"),
-    path('token/', oauth2_views.TokenView.as_view(), name="token"),
+    path('token', oauth2_views.TokenView.as_view(), name="token"),
     path('revoke-token/', oauth2_views.RevokeTokenView.as_view(), name="revoke-token"),
 ]
 
@@ -68,3 +70,48 @@ urlpatterns += [
     path('o/', include((oauth2_endpoint_views, 'oauth2_provider'), namespace="oauth2_provider")),
 ]
 
+
+from rest_framework import generics, permissions, serializers
+from django.contrib.auth.models import User, Group
+from oauth2_provider.contrib.rest_framework import TokenHasReadWriteScope, TokenHasScope
+# first we define the serializers
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'email', "first_name", "last_name")
+
+class GroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = ("name", )
+
+# Create the API views
+class UserList(generics.ListCreateAPIView):
+    # permission_classes = [permissions.IsAuthenticated, TokenHasReadWriteScope]
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+class UserList(View):
+    # permission_classes = [permissions.IsAuthenticated, TokenHasReadWriteScope]
+    def get(self, request):
+        import json
+        return HttpResponse(json.dumps({"name":"test", "email":"test@test"}))
+
+class UserDetails(View):
+    # permission_classes = [permissions.IsAuthenticated, TokenHasReadWriteScope]
+    def get(self, request):
+        import json
+        return HttpResponse(json.dumps({"name":"test", "email":"test@test"}))
+
+class GroupList(generics.ListAPIView):
+    # permission_classes = [permissions.IsAuthenticated, TokenHasScope]
+    required_scopes = ['groups']
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
+
+urlpatterns += [
+    path('users/', UserList.as_view()),
+    path('users/<pk>/', UserDetails.as_view()),
+    path('users/emails', UserDetails.as_view()),
+    path('groups/', GroupList.as_view()),
+]

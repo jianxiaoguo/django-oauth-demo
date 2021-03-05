@@ -25,7 +25,7 @@ SECRET_KEY = '6=un%_k92bm@j)#wstnhqs)d)pdj$t@_w1ax(ap-xv8^n_t_d!'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['dev.khalti.com.np', ]
+ALLOWED_HOSTS = ['dev.khalti.com.np', '*']
 
 
 # Application definition
@@ -75,11 +75,17 @@ WSGI_APPLICATION = 'kklogin.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-
+import os
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get(
+            'DRYCC_DATABASE_NAME', os.environ.get('DRYCC_DATABASE_USER', 'oauth')),
+        'USER': os.environ.get('DRYCC_DATABASE_USER', 'postgres'),
+        'PASSWORD': os.environ.get('DRYCC_DATABASE_PASSWORD', '123456'),
+        'HOST': os.environ.get('DRYCC_DATABASE_SERVICE_HOST', '192.168.6.50'),
+        'PORT': os.environ.get('DRYCC_DATABASE_SERVICE_PORT', 5432),
+        'CONN_MAX_AGE': 600,
     }
 }
 
@@ -108,7 +114,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Asia/Kathmandu'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
@@ -124,13 +130,14 @@ STATIC_URL = '/static/'
 LOGIN_REDIRECT_URL = '/bagaicha/'
 LOGIN_URL = '/login/'
 LOGOUT_REDIRECT_URL = '/login/'
-BASE_URL = 'http://dev.khalti.com.np:8004'
+# BASE_URL = 'http://dev.khalti.com.np:8004'
+BASE_URL = 'http://g.uucin.com'
 
 # OAuth Specific
 CORS_ORIGIN_ALLOW_ALL = True
 
 OAUTH2_PROVIDER = {
-    "PKCE_REQUIRED": True,
+    "PKCE_REQUIRED": False,
     "ALLOWED_REDIRECT_URI_SCHEMES": ["http", "https"],
     "ACCESS_TOKEN_EXPIRE_SECONDS": 30*86400, # #30 Days
     "AUTHORIZATION_CODE_EXPIRE_SECONDS": 600, # RFC Recommendation is 10 Secs
@@ -138,7 +145,7 @@ OAUTH2_PROVIDER = {
     "REFRESH_TOKEN_EXPIRE_SECONDS": 60*86400, # 60 Days
     "ROTATE_REFRESH_TOKEN": True, # New Refresh Token is issued everytime the access token is changed
     "SCOPES": {
-        'profile': 'Khalti Id and Basic Profile Info',
+        'profile': 'Khalti',
         'balance': 'Available Balance',
         'transactions': 'Fetch Transaction History',
         'payments': 'Allow Payments to be made automatically' ,

@@ -18,7 +18,7 @@ from gatepass.oauth.client import GatepassOAuthClient
 # Create your views here.
 
 gp_client =GatepassOAuthClient(
-    client_id=OAUTH_CLIENT_ID, 
+    client_id=OAUTH_CLIENT_ID,
     client_secret=OAUTH_CLIENT_SECRET
 )
 
@@ -36,16 +36,17 @@ class LoginWithView(TemplateView):
     def get_context_data(self, **kwargs):
         kw=super().get_context_data(**kwargs)
 
-        redirect_url = self.request.build_absolute_uri('/bagaicha/private/')
+        redirect_url = 'http://g.uucin.com/login/generic_oauth'
         authorize_url = gp_client.generate_authorize_url(redirect_url)
 
         self.request.session['code_challenge'] = authorize_url.get('code_challenge')
         self.request.session['state'] = authorize_url.get('state')
 
         kw['authorize_url'] = authorize_url['url']
+        print(kw['authorize_url'])
         kw['args'] = urllib.parse.urlparse(authorize_url['url']).query.split("&")
         kw['state'] = authorize_url['state']
-    
+
         return kw
 
 class RedirectUrlView(TemplateView):
@@ -54,7 +55,7 @@ class RedirectUrlView(TemplateView):
     def get_context_data(self, **kwargs):
         kw = super().get_context_data(**kwargs)
         kw['get_args'] = self.request.GET
-    
+
         # make access_Token_request
         # client=oauth_client()
         resp1={'code': self.request.GET.get('code'), 'state': self.request.GET.get('state')}
@@ -64,7 +65,7 @@ class RedirectUrlView(TemplateView):
 
         code_challenge=self.request.session.get('code_challenge')
 
-        redirect_url = self.request.build_absolute_uri('/bagaicha/private/')
+        redirect_url = self.request.build_absolute_uri('/login/generic_oauth')
         _response = gp_client.make_access_token_request(code=code, state=state, redirect_uri=redirect_url, code_challenge=code_challenge)
 
         response = json.loads(_response.text)
@@ -79,16 +80,16 @@ class RefreshTokenView(TemplateView):
     def get_context_data(self, **kwargs):
         kw = super().get_context_data(**kwargs)
         kw['get_args'] = self.request.GET
-    
+
         # make access_Token_request
         # client=oauth_client()
 
         refresh_token=self.request.GET.get('token')
 
-        redirect_url = self.request.build_absolute_uri('/bagaicha/private/')
+        redirect_url = self.request.build_absolute_uri('/login/generic_oauth')
         _response = gp_client.make_refresh_token_request(refresh_token)
 
         response = json.loads(_response.text)
-        
+
         kw['response'] = response
         return kw

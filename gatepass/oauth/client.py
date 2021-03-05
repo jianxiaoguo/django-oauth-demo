@@ -6,11 +6,11 @@ import uuid
 import requests
 # from authlib.integrations.django_client import OAuth
 
-OAUTH_CLIENT_ID='2H7EwXHRy5YESvL8AkBVJtzGQVOgo3geu3DaWfWf'
-OAUTH_CLIENT_SECRET='vQ8KAITx0HFu3CI496iQdAs8NzhvIdz94aWTkmBYVR77h52qiiLzsZrhH5nVE5BPd67vkYuptDRJk5W83tsjFekXrTCy908zdqCXbgLT7pRxPsT4l2QTX52YMISFbkvR'
-OAUTH_ACCESS_TOKEN_URL='http://dev.khalti.com.np:8004/o/token/'
-OAUTH_REFRESH_TOKEN_URL='http://dev.khalti.com.np:8004/o/token/'
-OAUTH_AUTHORIZE_URL='http://dev.khalti.com.np:8004/o/authorize/'
+OAUTH_CLIENT_ID='6ZZudocraxxaXIz0EfGooPuLbAUuttF7lxAgZDkK'
+OAUTH_CLIENT_SECRET='ivaFPOuefbiBHV4H4ziYFURSSdWmfs5nEGZm0DEBHgW5A0oAJdoMYH6T7bAg6QQt'
+OAUTH_ACCESS_TOKEN_URL='http://g.uucin.com/token/'
+OAUTH_REFRESH_TOKEN_URL='http://d.uucin.com/o/token/'
+OAUTH_AUTHORIZE_URL='http://d.uucin.com/o/authorize/'
 
 class GatepassOAuthClient():
     name=None
@@ -19,7 +19,7 @@ class GatepassOAuthClient():
     access_token_url=None
     authorize_url=None
     access_token_url=None
-    refresh_token_url=None 
+    refresh_token_url=None
     code_challenge=False
     code_challenge_method="S256"
 
@@ -42,7 +42,7 @@ class GatepassOAuthClient():
     def _client_auth_headers(self):
         auth_string = "{}:{}".format(self.client_id, self.client_secret)
         encoded_creds = base64.b64encode(auth_string.encode()).decode()
-        return { 
+        return {
             "Authorization": "Basic {}".format(encoded_creds)
         }
 
@@ -57,7 +57,7 @@ class GatepassOAuthClient():
         else:
             raise Exception("Invalid Encryption Method for Code_Challenge")
 
-    def get_random_challenge_code(self): 
+    def get_random_challenge_code(self):
         # Just some Randomizer and then MD5
         return hashlib.md5(self._uuid()).hexdigest()
 
@@ -101,7 +101,7 @@ class GatepassOAuthClient():
             raise Exception("code_challenge is required for access_token request")
         elif self.code_challenge:
             postdata['code_verifier'] = code_challenge
-    
+
         response = requests.post(
             self.access_token_url, data=postdata, headers=self._client_auth_headers()
         )
@@ -124,7 +124,7 @@ class GatepassOAuthClient():
 
     def make_revoke_token_request(self, token, token_type_hint=None):
         postdata=dict(token=token)
-        if token_type_hint is not None and not in ['access_token', 'refresh_token']:
+        if token_type_hint is not None and token_type_hint not in ['access_token', 'refresh_token']:
             raise Exception("Invalid parameter token_type_hint")
         elif token_type_hint:
             postdata['token_type_hint'] = token_type_hint
