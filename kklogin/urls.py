@@ -21,11 +21,9 @@ from django.views.generic.base import RedirectView, View
 from django.contrib.auth.decorators import login_required
 
 import oauth2_provider.views as oauth2_views
-from rest_framework.response import Response
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-#    path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 ]
 
 urlpatterns += [
@@ -85,17 +83,18 @@ class GroupSerializer(serializers.ModelSerializer):
         model = Group
         fields = ("name", )
 
-# Create the API views
-class UserList(generics.ListCreateAPIView):
-    # permission_classes = [permissions.IsAuthenticated, TokenHasReadWriteScope]
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
 class UserList(View):
     # permission_classes = [permissions.IsAuthenticated, TokenHasReadWriteScope]
     def get(self, request):
         import json
-        return HttpResponse(json.dumps({"name":"test", "email":"test@test"}))
+        token_value = request.headers['Authorization'][7:]  # Bearer ****
+        # token_value = request.META.get("HTTP_AUTHORIZATION")[7:]  # tong shang
+        from oauth2_provider.models import get_access_token_model
+        token = (
+            get_access_token_model().objects.select_related("user", "application").get(token=token_value)
+        )
+        print(token)
+        return HttpResponse(json.dumps({"name":token.user.username, "email":token.user.email}))
 
 class UserDetails(View):
     # permission_classes = [permissions.IsAuthenticated, TokenHasReadWriteScope]
