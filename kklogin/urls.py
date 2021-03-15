@@ -93,8 +93,7 @@ class UserList(View):
         token = (
             get_access_token_model().objects.select_related("user", "application").get(token=token_value)
         )
-        print(token)
-        return HttpResponse(json.dumps({"name":token.user.username, "email":token.user.email}))
+        return HttpResponse(json.dumps({"name":token.user.username,"username":token.user.username, "email":token.user.email}))
 
 class UserDetails(View):
     # permission_classes = [permissions.IsAuthenticated, TokenHasReadWriteScope]
